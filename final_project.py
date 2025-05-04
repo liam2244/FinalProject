@@ -2,7 +2,7 @@
 Name:       Liam Hill
 CS230:      Section 4
 Data:       NY-House_Dataset.csv
-URL:        Link to your web application on Streamlit Cloud (if posted)
+URL:        https://finalproject-7nbwnwgksxzfikygzftm9c.streamlit.app
 
 
 Description:
@@ -112,7 +112,7 @@ filtered_df = filtered_df[["ADDRESS", "PRICE", "TYPE", "BEDS", "BATH", "PROPERTY
 
 # Show header and results of filtered dataframe
 st.markdown(f"**{len(filtered_df)} listings found in {selected_area} under ${price_limit:,}**")
-st.dataframe(filtered_df, use_container_width=True)
+st.dataframe(filtered_df.reset_index(drop=True), use_container_width=True)
 
 # [PY4] Using list comprehension to get top 3 best value listings based on price per sqft (see section 2 of document)
 best_values_df = filtered_df.sort_values(by="PRICE_PER_SQFT").head(3) #Filter data by lowest price per sqft, only keep the top three values
@@ -164,9 +164,20 @@ with tab2:
     st.caption("Each dot represents a listing in the selected area, colored by home type.")
     scatter_data = filtered_df.dropna(subset=["PROPERTYSQFT"])  # Remove any items without sqft to avoid confusion
     scatter_data = scatter_data[scatter_data["PROPERTYSQFT"] > 0]  # Also remove items with sqft of 0
-    sea.scatterplot(data=scatter_data, x="PROPERTYSQFT", y="PRICE", hue="TYPE")  # Plot the data on a scatterplot
-    plt.xlabel("Property Size (sqft)")
-    plt.ylabel("Price ($)")
-    plt.title("Price vs. Size")
-    st.pyplot(plt.gcf())
+    fig, ax = plt.subplots()
+    scatter = sea.scatterplot(
+        data=scatter_data,
+        x="PROPERTYSQFT",
+        y="PRICE",
+        hue="TYPE",
+        palette="muted",
+        alpha=0.8
+    )
+    ax.set_xlabel("Property Size (sqft)")
+    ax.set_ylabel("Price ($)")
+    ax.set_title("Price vs. Size", fontweight="bold")
+    ax.get_yaxis().set_major_formatter(plt.FuncFormatter(lambda x, _: f"${int(x):,}"))
+    ax.grid(True, linestyle="--", linewidth=0.5, alpha=0.7)
+    plt.tight_layout()
+    st.pyplot(fig)
     plt.clf()
